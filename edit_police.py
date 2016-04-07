@@ -1,41 +1,41 @@
 '''edit_police.py
 Author: Bill Jameson
 diff backups of cnc programs to sniff out manual editing
-v0.2: prototype
+v0.3: start generating report
 '''
 import difflib
 import re
 
-def line_check(line):
-    '''Return True if the line is not common to both inputs, False otherwise
-    (or if the line should be ignored regardless)'''
-    # ignore commands beginning with E variables
-    match_pattern = '^[+-?].*'
-    ignore_pattern = '^...E.+'
-    match = re.match(match_pattern, line)
-    ignore = re.match(ignore_pattern, line)
-
-    if match and not ignore:
-        return True
-    else:
-        return False
+def match_diff(diff):
+    '''Input: unified diff
+    Output: list containing the diff separated into its constituent
+    hunks (with the header leading)
+    Note: the result will have an odd length: the header, plus two
+    items per hunk (the control line, and the hunk itself)'''
+    return re.split('(@@.*@@\n)', diff)
 
 def diff_files(prev_filename, new_filename):
-    prev_backup = open(prev_filename)
-    prev_backup_contents = prev_backup.read().splitlines()
-    prev_backup.close()
-    new_backup = open(new_filename)
-    new_backup_contents = new_backup.read().splitlines()
-    new_backup.close()
+    with open(prev_filename, 'r') as prev_backup:
+        prev_backup_contents = prev_backup.read().splitlines()
+    with open(new_filename, 'r') as new_backup:
+        new_backup_contents = new_backup.read().splitlines()
 
-    d = difflib.Differ()
-    return list(d.compare(prev_backup_contents, new_backup_contents))
+    diff = difflib.unified_diff(prev_backup_contents, new_backup_contents,
+                                prev_filename, new_filename)
 
+    return [d for d in diff]
+
+report_filename = 'report.txt'
 testdata = ('108_2mockup.NC', '108_3modified.NC')
 diff = diff_files(testdata[0], testdata[1])
+diff_text = '\n'.join(diff)
 
-report = [line for line in diff if line_check(line)]
+print(diff_text)
 
-for line in report:
-    print(line)
+hunks = match_diff(diff_text)
 
+with open(report_filename, 'w') as report_file:
+    report_file.write(hunks[0])
+
+    for h in hunks[1:]:
+        report_file.write(h)
