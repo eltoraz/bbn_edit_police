@@ -2,6 +2,12 @@
 Author: Bill Jameson
 diff backups of cnc programs to sniff out manual editing
 v0.3: start generating report
+TODO:
+  - filter out hunks with only changes to E variables
+    (will only occur as assignments at beginning of line)
+  - get timestamps for files, save report with date in filename
+  - generalize for all files in a directory/set of directories
+  - append results from other files to end of report
 '''
 import difflib
 import re
