@@ -11,7 +11,7 @@ def line_check(line):
     (or if the line should be ignored regardless)'''
     # ignore commands beginning with E variables
     match_pattern = '^[+-?].*'
-    ignore_pattern = '^..E.+'
+    ignore_pattern = '^...E.+'
     match = re.match(match_pattern, line)
     ignore = re.match(ignore_pattern, line)
 
