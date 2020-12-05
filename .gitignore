@@ -1,0 +1,4 @@
+__pycache__/
+report.txt
+sample_output.txt
+*.nc
